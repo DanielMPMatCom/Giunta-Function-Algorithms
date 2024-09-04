@@ -11,3 +11,15 @@ f(x)=0.6+\sum_{i=1}^2​[\sin(\frac{16}{15}x_i-1​)+\sin^2(\frac{16}{15}x_i-1�
 $$
 
 sujeto a $-1 \le x_i \le 1$. El mínimo global se alzanza en el punto $x^* = f(0.45834282, 0.45834282)$ y el mínimo alcanzado es $f(x^*)=0.060447$.
+
+## Algoritmos probados
+
+- Minimize
+- Differential Evolution
+- Genetic Algorithm
+- Trust Region
+- Quasi-Newton
+- Max Descent
+- PSO
+- Simulated Annealing
+- Basin Hopping
