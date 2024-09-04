@@ -12,6 +12,9 @@ $$
 
 sujeto a $-1 \le x_i \le 1$. El mínimo global se alzanza en el punto $x^* = f(0.45834282, 0.45834282)$ y el mínimo alcanzado es $f(x^*)=0.060447$.
 
+![Giunta Function](report/images/giunta_function.png)
+
+
 ## Algoritmos probados
 
 - Minimize
@@ -23,3 +26,10 @@ sujeto a $-1 \le x_i \le 1$. El mínimo global se alzanza en el punto $x^* = f(0
 - PSO
 - Simulated Annealing
 - Basin Hopping
+
+## Resultados
+
+![Error in Position](report/images/error_in_position.png)
+![Time Taken](report/images/time_taken.png)
+![Optimization Results](report/images/optimization_results.png)
+![Errors Relative to Global Minimum](report/images/errors_relative_table.png)

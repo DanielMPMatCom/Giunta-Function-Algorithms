@@ -23,6 +23,28 @@ def giunta_function(x):
         for xi in x
     )
 
+# Plotting the Giunta Function
+def plot_giunta_function():
+    """
+    Plot the Giunta Function over a grid in the input space.
+    """
+    x = np.linspace(-1, 1, 400)
+    y = np.linspace(-1, 1, 400)
+    X, Y = np.meshgrid(x, y)
+    Z = np.array([giunta_function([xi, yi]) for xi, yi in zip(np.ravel(X), np.ravel(Y))])
+    Z = Z.reshape(X.shape)
+
+    plt.figure(figsize=(8, 6))
+    plt.contourf(X, Y, Z, levels=50, cmap='viridis')
+    plt.colorbar()
+    plt.title("Giunta Function")
+    plt.xlabel("x1")
+    plt.ylabel("x2")
+    plt.show()
+
+# Plot the Giunta Function
+plot_giunta_function()
+
 # Definition of bounds
 bounds = [(-1, 1), (-1, 1)]
 x_min_global = np.array([0.45834282, 0.45834282])
@@ -257,57 +279,53 @@ errors_f = [errors[m][1] for m in methods]
 times = [minimize_time, de_time, ga_time, trust_region_time, quasi_newton_time,
          max_descent_time, pso_time, sa_time, bh_time]
 
-# Truncar los resultados a 8 decimales
 results_df = results_df.round(8)
 errors_df = errors_df.round(8)
 
 # Plotting the error in position
-plt.figure(figsize=(8, 4))  # Reduce el tamaño de la gráfica
+plt.figure(figsize=(8, 4))  
 plt.bar(methods, errors_x)
 plt.ylabel('Error in x', fontsize=12)
 plt.xticks(rotation=45, fontsize=10)
 plt.title('Error in Position', fontsize=16)
-plt.tight_layout()  # Ajustar el diseño para que todo quepa bien
+plt.tight_layout()  
 plt.show()
 
 # Plotting the time taken
-plt.figure(figsize=(8, 4))  # Reduce el tamaño de la gráfica
+plt.figure(figsize=(8, 4))  
 plt.bar(methods, times)
 plt.ylabel('Time (s)', fontsize=12)
 plt.xticks(rotation=45, fontsize=10)
 plt.title('Time Taken', fontsize=16)
-plt.tight_layout()  # Ajustar el diseño para que todo quepa bien
+plt.tight_layout()  
 plt.show()
 
-# Truncar las coordenadas a 8 lugares decimales
 results_df['x'] = results_df['x'].apply(lambda x: np.round(x, 8))
 
 # Plotting the results as a table
-fig, ax = plt.subplots(figsize=(10, 4))  # Ajustar el tamaño del gráfico
+fig, ax = plt.subplots(figsize=(10, 4))  
 ax.axis('tight')
 ax.axis('off')
 table = ax.table(cellText=results_df.values, colLabels=results_df.columns, loc='center')
 
-# Aumenta el tamaño de la fuente en la tabla
 table.auto_set_font_size(False)
-table.set_fontsize(10)  # Cambia el tamaño de la fuente
-table.scale(1.2, 1.2)  # Escala la tabla para mejorar la legibilidad
+table.set_fontsize(10)  
+table.scale(1.2, 1.2)  
 
-plt.title('Optimization Results', fontsize=16)  # Ajusta el tamaño de la fuente del título
-plt.tight_layout()  # Ajustar el diseño para que todo quepa bien
+plt.title('Optimization Results', fontsize=16)  
+plt.tight_layout()  
 plt.show()
 
 # Plotting the errors as a table
-fig, ax = plt.subplots(figsize=(10, 4))  # Ajustar el tamaño del gráfico
+fig, ax = plt.subplots(figsize=(10, 4))  
 ax.axis('tight')
 ax.axis('off')
 table = ax.table(cellText=errors_df.values, colLabels=errors_df.columns, loc='center')
 
-# Aumenta el tamaño de la fuente en la tabla
 table.auto_set_font_size(False)
-table.set_fontsize(10)  # Cambia el tamaño de la fuente
-table.scale(1.2, 1.2)  # Escala la tabla para mejorar la legibilidad
+table.set_fontsize(10)  
+table.scale(1.2, 1.2)  
 
-plt.title('Errors Relative to Global Minimum', fontsize=16)  # Ajusta el tamaño de la fuente del título
-plt.tight_layout()  # Ajustar el diseño para que todo quepa bien
+plt.title('Errors Relative to Global Minimum', fontsize=16)  
+plt.tight_layout()  
 plt.show()
