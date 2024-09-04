@@ -1,6 +1,9 @@
 import numpy as np
-from scipy.optimize import minimize, differential_evolution
-from scipy.optimize import fmin_cg, fmin_bfgs, fmin_ncg
+import matplotlib.pyplot as plt
+import time
+from scipy.optimize import minimize, differential_evolution, basinhopping, dual_annealing
+from scipy.optimize import fmin_cg
+from pyswarm import pso
 from deap import base, creator, tools, algorithms
 
 # Definition of the Giunta Function
@@ -24,7 +27,18 @@ bounds = [(-1, 1), (-1, 1)]
 x_min_global = np.array([0.45834282, 0.45834282])
 f_min_global = 0.060447
 
+# Timer decorator
+def time_it(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        return result, elapsed_time
+    return wrapper
+
 # Optimization algorithm using minimize
+@time_it
 def optimize_minimize():
     """
     Optimize the Giunta function using the minimize method.
@@ -36,6 +50,7 @@ def optimize_minimize():
     return result
 
 # Optimization algorithm using differential evolution
+@time_it
 def optimize_differential_evolution():
     """
     Optimize the Giunta function using differential evolution.
@@ -47,6 +62,7 @@ def optimize_differential_evolution():
     return result
 
 # Optimization algorithm using a genetic algorithm
+@time_it
 def optimize_genetic_algorithm():
     """
     Optimize the Giunta function using a genetic algorithm.
@@ -76,6 +92,7 @@ def optimize_genetic_algorithm():
     return best_individual, giunta_function(best_individual)
 
 # Trust Region Method
+@time_it
 def optimize_trust_region():
     """
     Optimize the Giunta function using the trust region method.
@@ -87,6 +104,7 @@ def optimize_trust_region():
     return result
 
 # Quasi-Newton Method (BFGS)
+@time_it
 def optimize_quasi_newton():
     """
     Optimize the Giunta function using the BFGS quasi-Newton method.
@@ -98,6 +116,7 @@ def optimize_quasi_newton():
     return result
 
 # Method of Steepest Descent
+@time_it
 def optimize_maximum_descent():
     """
     Optimize the Giunta function using the method of steepest descent.
@@ -108,6 +127,44 @@ def optimize_maximum_descent():
     """
     result = fmin_cg(giunta_function, x0=[0, 0])
     return result, giunta_function(result)
+
+# Optimization algorithm using PSO
+@time_it
+def optimize_pso():
+    """
+    Optimize the Giunta function using Particle Swarm Optimization.
+
+    Returns:
+    best_position: The best position found.
+    best_value: The value of the Giunta function at the best position.
+    """
+    best_position, best_value = pso(giunta_function, [b[0] for b in bounds], [b[1] for b in bounds])
+    return best_position, best_value
+
+# Optimization algorithm using Simulated Annealing
+@time_it
+def optimize_simulated_annealing():
+    """
+    Optimize the Giunta function using Simulated Annealing.
+
+    Returns:
+    result: Optimization result object.
+    """
+    result = dual_annealing(giunta_function, bounds=bounds)
+    return result
+
+# Basin Hopping Method
+@time_it
+def optimize_basin_hopping():
+    """
+    Optimize the Giunta function using the Basin Hopping method.
+
+    Returns:
+    result: Optimization result object.
+    """
+    minimizer_kwargs = {"method": "BFGS"}
+    result = basinhopping(giunta_function, x0=[0, 0], minimizer_kwargs=minimizer_kwargs)
+    return result
 
 # Function to evaluate the results
 def evaluate_result(x_result, f_result):
@@ -127,12 +184,15 @@ def evaluate_result(x_result, f_result):
     return error_x, error_f
 
 # Results from different methods
-minimize_result = optimize_minimize()
-de_result = optimize_differential_evolution()
-ga_result = optimize_genetic_algorithm()
-trust_region_result = optimize_trust_region()
-quasi_newton_result = optimize_quasi_newton()
-max_descent_result = optimize_maximum_descent()
+minimize_result, minimize_time = optimize_minimize()
+de_result, de_time = optimize_differential_evolution()
+ga_result, ga_time = optimize_genetic_algorithm()
+trust_region_result, trust_region_time = optimize_trust_region()
+quasi_newton_result, quasi_newton_time = optimize_quasi_newton()
+max_descent_result, max_descent_time = optimize_maximum_descent()
+pso_result, pso_time = optimize_pso()
+sa_result, sa_time = optimize_simulated_annealing()
+bh_result, bh_time = optimize_basin_hopping()
 
 # Evaluation of the results
 errors = {
@@ -142,17 +202,47 @@ errors = {
     "Trust Region": evaluate_result(trust_region_result.x, trust_region_result.fun),
     "Quasi-Newton": evaluate_result(quasi_newton_result.x, quasi_newton_result.fun),
     "Max Descent": evaluate_result(max_descent_result[0], max_descent_result[1]),
+    "PSO": evaluate_result(np.array(pso_result[0]), pso_result[1]),
+    "Simulated Annealing": evaluate_result(sa_result.x, sa_result.fun),
+    "Basin Hopping": evaluate_result(bh_result.x, bh_result.fun),
 }
 
 # Printing results
-print("Minimize Result:", minimize_result.x, minimize_result.fun)
-print("Differential Evolution Result:", de_result.x, de_result.fun)
-print("Genetic Algorithm Result:", ga_result[0], ga_result[1])
-print("Trust Region Result:", trust_region_result.x, trust_region_result.fun)
-print("Quasi-Newton Result:", quasi_newton_result.x, quasi_newton_result.fun)
-print("Maximum Descent Result:", max_descent_result[0], max_descent_result[1])
+print("Minimize Result:", minimize_result.x, minimize_result.fun, "Time:", minimize_time)
+print("Differential Evolution Result:", de_result.x, de_result.fun, "Time:", de_time)
+print("Genetic Algorithm Result:", ga_result[0], ga_result[1], "Time:", ga_time)
+print("Trust Region Result:", trust_region_result.x, trust_region_result.fun, "Time:", trust_region_time)
+print("Quasi-Newton Result:", quasi_newton_result.x, quasi_newton_result.fun, "Time:", quasi_newton_time)
+print("Maximum Descent Result:", max_descent_result[0], max_descent_result[1], "Time:", max_descent_time)
+print("PSO Result:", pso_result[0], pso_result[1], "Time:", pso_time)
+print("Simulated Annealing Result:", sa_result.x, sa_result.fun, "Time:", sa_time)
+print("Basin Hopping Result:", bh_result.x, bh_result.fun, "Time:", bh_time)
 
 # Printing errors
 print("\nErrors relative to the global minimum:")
 for method, (error_x, error_f) in errors.items():
     print(f"{method} - Error in x: {error_x}, Error in f: {error_f}")
+
+# Plotting results
+methods = ["Minimize", "Differential Evolution", "Genetic Algorithm", "Trust Region",
+           "Quasi-Newton", "Max Descent", "PSO", "Simulated Annealing", "Basin Hopping"]
+errors_x = [errors[m][0] for m in methods]
+errors_f = [errors[m][1] for m in methods]
+times = [minimize_time, de_time, ga_time, trust_region_time, quasi_newton_time,
+         max_descent_time, pso_time, sa_time, bh_time]
+
+plt.figure(figsize=(15, 7))
+plt.subplot(1, 2, 1)
+plt.bar(methods, errors_x)
+plt.ylabel('Error in x')
+plt.xticks(rotation=45)
+plt.title('Error in Position')
+
+plt.subplot(1, 2, 2)
+plt.bar(methods, times)
+plt.ylabel('Time (s)')
+plt.xticks(rotation=45)
+plt.title('Time Taken')
+
+plt.tight_layout()
+plt.show()
