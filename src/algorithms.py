@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import pandas as pd
 from scipy.optimize import minimize, differential_evolution, basinhopping, dual_annealing
 from scipy.optimize import fmin_cg
 from pyswarm import pso
@@ -218,6 +219,20 @@ print("PSO Result:", pso_result[0], pso_result[1], "Time:", pso_time)
 print("Simulated Annealing Result:", sa_result.x, sa_result.fun, "Time:", sa_time)
 print("Basin Hopping Result:", bh_result.x, bh_result.fun, "Time:", bh_time)
 
+# Creating a DataFrame for the results
+results_data = {
+    "Method": ["Minimize", "Differential Evolution", "Genetic Algorithm", "Trust Region",
+               "Quasi-Newton", "Max Descent", "PSO", "Simulated Annealing", "Basin Hopping"],
+    "x": [minimize_result.x, de_result.x, ga_result[0], trust_region_result.x, quasi_newton_result.x, 
+          max_descent_result[0], pso_result[0], sa_result.x, bh_result.x],
+    "f(x)": [minimize_result.fun, de_result.fun, ga_result[1], trust_region_result.fun, 
+             quasi_newton_result.fun, max_descent_result[1], pso_result[1], sa_result.fun, bh_result.fun],
+    "Time (s)": [minimize_time, de_time, ga_time, trust_region_time, quasi_newton_time, 
+                 max_descent_time, pso_time, sa_time, bh_time]
+}
+
+results_df = pd.DataFrame(results_data)
+
 # Printing errors
 print("\nErrors relative to the global minimum:")
 for method, (error_x, error_f) in errors.items():
@@ -226,23 +241,73 @@ for method, (error_x, error_f) in errors.items():
 # Plotting results
 methods = ["Minimize", "Differential Evolution", "Genetic Algorithm", "Trust Region",
            "Quasi-Newton", "Max Descent", "PSO", "Simulated Annealing", "Basin Hopping"]
+
+# Creating a DataFrame for the errors
+errors_data = {
+    "Method": ["Minimize", "Differential Evolution", "Genetic Algorithm", "Trust Region",
+               "Quasi-Newton", "Max Descent", "PSO", "Simulated Annealing", "Basin Hopping"],
+    "Error in x": [errors[m][0] for m in methods],
+    "Error in f": [errors[m][1] for m in methods]
+}
+
+errors_df = pd.DataFrame(errors_data)
+
 errors_x = [errors[m][0] for m in methods]
 errors_f = [errors[m][1] for m in methods]
 times = [minimize_time, de_time, ga_time, trust_region_time, quasi_newton_time,
          max_descent_time, pso_time, sa_time, bh_time]
 
-plt.figure(figsize=(15, 7))
-plt.subplot(1, 2, 1)
+# Truncar los resultados a 8 decimales
+results_df = results_df.round(8)
+errors_df = errors_df.round(8)
+
+# Plotting the error in position
+plt.figure(figsize=(8, 4))  # Reduce el tamaño de la gráfica
 plt.bar(methods, errors_x)
-plt.ylabel('Error in x')
-plt.xticks(rotation=45)
-plt.title('Error in Position')
+plt.ylabel('Error in x', fontsize=12)
+plt.xticks(rotation=45, fontsize=10)
+plt.title('Error in Position', fontsize=16)
+plt.tight_layout()  # Ajustar el diseño para que todo quepa bien
+plt.show()
 
-plt.subplot(1, 2, 2)
+# Plotting the time taken
+plt.figure(figsize=(8, 4))  # Reduce el tamaño de la gráfica
 plt.bar(methods, times)
-plt.ylabel('Time (s)')
-plt.xticks(rotation=45)
-plt.title('Time Taken')
+plt.ylabel('Time (s)', fontsize=12)
+plt.xticks(rotation=45, fontsize=10)
+plt.title('Time Taken', fontsize=16)
+plt.tight_layout()  # Ajustar el diseño para que todo quepa bien
+plt.show()
 
-plt.tight_layout()
+# Truncar las coordenadas a 8 lugares decimales
+results_df['x'] = results_df['x'].apply(lambda x: np.round(x, 8))
+
+# Plotting the results as a table
+fig, ax = plt.subplots(figsize=(10, 4))  # Ajustar el tamaño del gráfico
+ax.axis('tight')
+ax.axis('off')
+table = ax.table(cellText=results_df.values, colLabels=results_df.columns, loc='center')
+
+# Aumenta el tamaño de la fuente en la tabla
+table.auto_set_font_size(False)
+table.set_fontsize(10)  # Cambia el tamaño de la fuente
+table.scale(1.2, 1.2)  # Escala la tabla para mejorar la legibilidad
+
+plt.title('Optimization Results', fontsize=16)  # Ajusta el tamaño de la fuente del título
+plt.tight_layout()  # Ajustar el diseño para que todo quepa bien
+plt.show()
+
+# Plotting the errors as a table
+fig, ax = plt.subplots(figsize=(10, 4))  # Ajustar el tamaño del gráfico
+ax.axis('tight')
+ax.axis('off')
+table = ax.table(cellText=errors_df.values, colLabels=errors_df.columns, loc='center')
+
+# Aumenta el tamaño de la fuente en la tabla
+table.auto_set_font_size(False)
+table.set_fontsize(10)  # Cambia el tamaño de la fuente
+table.scale(1.2, 1.2)  # Escala la tabla para mejorar la legibilidad
+
+plt.title('Errors Relative to Global Minimum', fontsize=16)  # Ajusta el tamaño de la fuente del título
+plt.tight_layout()  # Ajustar el diseño para que todo quepa bien
 plt.show()
